@@ -1,51 +1,4 @@
-import { Party } from "./shuffler";
-
-export enum JobTypes {
-  DAMAGE_DEALER = 'Damage Dealer',
-  BUFFER = 'Buffer',
-  HEALER = 'Healer',
-  TANK = 'Tank',
-  PET = 'Pet',
-  MAGE = 'Mage',
-  MAGIC_BURSTER = 'Magic Burster'
-}
-
-export interface Player {
-  name: string;
-  jobs: string[];
-  jobMap: any;
-}
-
-// export interface Job {
-//   id: string;
-//   tier: number;
-//   category: string;
-// }
-
-export interface Config {
-  slot_1: string;
-  slot_2: string;
-  slot_3: string;
-  slot_4: string;
-  slot_5: string;
-  slot_6: string;
-}
-
-export interface PartyBuilder extends Party {
-  // createParty(): void;
-  logTeamMatrix(): void
-}
-
-export const checkForDuplicates = (array: string[]): void => {
-  let hasDuplicates = false;
-  array.forEach((item: string, index: number, arr: string[]) => {
-    if (arr.slice(index + 1).includes(item)) hasDuplicates = true;
-  })
-}
-
-export const checkForSingleMemberJobs = (matrix: any) => {
-
-}
+import { Player } from "../../typeDefinitions/utils";
 
 export const Oyama: Player = {
   name: 'Oyama',
@@ -275,7 +228,7 @@ export const Blackstar: Player = {
   }
 };
 
-export const Alkkans = {
+export const Alkkans: Player = {
   name: 'Alkkans',
   jobs: [
     'SMN',
@@ -299,3 +252,98 @@ export const Alkkans = {
     'DRK': 3
   }
 }
+
+export const Kensou: Player = {
+  name: 'Kensou',
+  jobs: [
+    'WAR',
+    'WHM',
+    'RDM',
+    'PLD',
+    'SMN',
+    'DRG',
+    'GEO',
+  ],
+  jobMap: {
+    'WAR': 2,
+    'WHM': 2,
+    'RDM': 2,
+    'PLD': 1,
+    'SMN': 3,
+    'DRG': 2,
+    'GEO': 2,
+  }
+}
+
+export const Ceown: Player = {
+  name: 'Ceown',
+  jobs: [
+    'WHM',
+  ],
+  jobMap: {
+    'WHM': 2,
+  }
+}
+
+export const Juhno: Player = {
+  name: 'Juhno',
+  jobs: [
+    'RDM',
+    'PLD',
+    'BRD',
+    'GEO',
+  ],
+  jobMap: {
+    'RDM': 1,
+    'PLD': 3,
+    'BRD': 3,
+    'GEO': 2,
+  }
+}
+
+export const Grogu: Player = {
+  name: 'Grogu',
+  jobs: [
+    'WHM',
+    'RDM',
+    'SCH'
+  ],
+  jobMap: {
+    'WHM': 2,
+    'RDM': 3,
+    'SCH': 2
+  }
+}
+
+export const Knots: Player = {
+  name: 'Knots',
+  jobs: [
+    'WHM',
+    'RDM',
+    'COR',
+    'GEO'
+  ],
+  jobMap: {
+    'WHM': 2,
+    'RDM': 2,
+    'COR': 2,
+    'GEO': 2
+  }
+}
+
+export const memberPool = [
+  Oyama,
+  Lorileil,
+  Sarah,
+  Tiburon,
+  Ceokitty,
+  Oukaai,
+  Warria,
+  Blackstar,
+  Alkkans,
+  Kensou,
+  Ceown,
+  Juhno,
+  Grogu,
+  Knots
+]

@@ -1,4 +1,28 @@
-import { PartyBuilder, Player, Config, Oyama, Lorileil, Sarah, Tiburon, Ceokitty, Oukaai, Warria, Blackstar, Alkkans } from "./utils";
+import {
+
+  Oyama,
+  Lorileil,
+  Sarah,
+  Tiburon,
+  Ceokitty,
+  Oukaai,
+  Warria,
+  Blackstar,
+  Alkkans,
+  Kensou,
+  Grogu,
+  Ceown,
+  Juhno,
+  Knots,
+} from "../core/data/";
+
+import {
+  PartyBuilder,
+  Player,
+  Config,
+
+} from '../typeDefinitions/utils'
+
 const getJobs = (member: Player, index: number, members: Player[]): string[] => {
   const player: Player | undefined = members.find((p: Player) => {
     return p.name === member.name
@@ -25,12 +49,18 @@ export class Party implements PartyBuilder {
   private outputParty: any = { rank: 0 };
   private validParties: any[] = [];
 
-  constructor(players: Player[], config: any) {
+  constructor(players: Player[], config: Config) {
     // Set Permanent Resources
-    this.partyConfig = Object.keys(config).map(val => config[val])
+    // @ts-ignore
+    this.partyConfig = Object.keys(config).map((val: string) => config[val].jobId)
     this.partyLength = this.partyConfig.length;
     this.PartyMembers = players.map((p: Player) => {
-      p.jobs = p.jobs.filter((job: string) => this.partyConfig.includes(job))
+      p.jobs = p.jobs.filter((job: string) => this.partyConfig.includes(job));
+      p.jobMap = Object.keys(p.jobMap)
+        .filter((job: string) => p.jobs.includes(job))
+        .reduce((prev: any, job: string) => {
+          return { ...prev, [job]: p.jobMap[job] }
+        }, {})
       return { ...p }
     });
     for (let i = 0; i < this.partyLength; i++) {
@@ -49,7 +79,7 @@ export class Party implements PartyBuilder {
     })
     this.jobsAvailable = new Set<string>(jbs);
     this.teamMatrix = { ...this.matrixMemo }
-    // console.log('Base Party Members:', this.PartyMembers)
+    console.log('Base Party Members:', this.PartyMembers)
   }
 
   private assign(member: Player, job: string): boolean {
@@ -132,51 +162,52 @@ export class Party implements PartyBuilder {
     if (defaultAssignments) {
       defaultAssignments.forEach((pair: [Player, string]) => {
         this.assign(pair[0], pair[1]);
-        defaults.push(pair[0].name)
+        defaults.push({ name: pair[0].name, job: pair[1] })
       })
     }
     console.log('Defaults:', defaults);
-    this.PartyMembers.filter((p: Player) => !(defaults.includes(p.name))).forEach((player: Player, i: number, arr: Player[]) => {
-      player.jobs.forEach((job: string) => {
-        if (defaultAssignments) {
-          defaultAssignments.forEach((pair: [Player, string]) => {
-            this.assign(pair[0], pair[1]);
-          })
-        }
-        this.assign(player, job);
-        // Before creating party, check the players/matrix for single job and single member cases.
-        // Assign as necessary until no cases, then run create party.
-        // But check a memo object first to determine if the party makeup from individual assignments (pre-createParty) already exist.
-        // If it already exists, we have already run create party on it and don't need to again.
-        this.createParty();
-
-        const validParty: boolean = Object.keys(this.outputParty).filter((job: string) => this.outputParty[job] !== undefined).length === this.partyLength + 1;
-        if (validParty) {
-          this.outputParty = Object.keys(this.outputParty)
-            .sort()
-            .reduce((prev, current) => {
-              return { ...prev, [current]: this.outputParty[current] }
-            }, {});
-          let isUnique: boolean = this.validParties.filter(
-            (party: any) => JSON.stringify(party) === JSON.stringify(this.outputParty)
-          ).length === 0;
-          if (isUnique) {
-            this.validParties = [...this.validParties, this.outputParty]
+    this.PartyMembers.filter((p: Player) => !(defaults.includes(p.name)))
+      .forEach((player: Player, i: number, arr: Player[]) => {
+        player.jobs.forEach((job: string) => {
+          if (defaultAssignments) {
+            defaultAssignments.forEach((pair: [Player, string]) => {
+              this.assign(pair[0], pair[1]);
+            })
           }
-        }
-        this.teamMatrix = this.matrixMemo;
-        this.outputParty = { rank: 0 };
-        this.jobsNeeded = this.partyConfig;
-        this.membersAvailable = this.PartyMembers;
-        const jbs = this.PartyMembers.map(getJobs).reduce((prev, current) => {
-          return [...prev, ...current]
+          this.assign(player, job);
+          // Before creating party, check the players/matrix for single job and single member cases.
+          // Assign as necessary until no cases, then run create party.
+          // But check a memo object first to determine if the party makeup from individual assignments (pre-createParty) already exist.
+          // If it already exists, we have already run create party on it and don't need to again.
+          this.createParty();
+
+          const validParty: boolean = Object.keys(this.outputParty).filter((job: string) => this.outputParty[job] !== undefined).length === this.partyLength + 1;
+          if (validParty) {
+            this.outputParty = Object.keys(this.outputParty)
+              .sort()
+              .reduce((prev, current) => {
+                return { ...prev, [current]: this.outputParty[current] }
+              }, {});
+            let isUnique: boolean = this.validParties.filter(
+              (party: any) => JSON.stringify(party) === JSON.stringify(this.outputParty)
+            ).length === 0;
+            if (isUnique) {
+              this.validParties = [...this.validParties, this.outputParty]
+            }
+          }
+          this.teamMatrix = this.matrixMemo;
+          this.outputParty = { rank: 0 };
+          this.jobsNeeded = this.partyConfig;
+          this.membersAvailable = this.PartyMembers;
+          const jbs = this.PartyMembers.map(getJobs).reduce((prev, current) => {
+            return [...prev, ...current]
+          })
+          this.jobsAvailable = new Set<string>(jbs);
         })
-        this.jobsAvailable = new Set<string>(jbs);
       })
-    })
     console.log('Number Of Parties:', this.validParties.length);
     console.log(
-      'Best Parties:', this.validParties.sort((a: any, b: any) => a.rank - b.rank).slice(0, 3)
+      'Best Parties:', this.validParties.sort((a: any, b: any) => a.rank - b.rank).slice(0, 5)
     );
     // console.log('DONE', this.validParties.length);
   }
@@ -218,12 +249,17 @@ export const players: Player[] = [
   Oyama,
   Oukaai,
   Sarah,
+  Kensou,
   Ceokitty,
   Tiburon,
   Blackstar,
   Lorileil,
   Warria,
-  Alkkans
+  Alkkans,
+  Grogu,
+  Ceown,
+  Juhno,
+  Knots
 ]
 
 // Look at Available Party Members as well as Matrix as you move people into and out of jobs.
@@ -233,15 +269,14 @@ export const players: Player[] = [
 
 // Desired string Setup of the Party
 const config: Config = {
-  slot_1: 'SAM',
-  slot_2: 'WAR',
-  slot_3: 'WHM',
-  slot_4: 'COR',
-  slot_5: 'BRD',
-  slot_6: 'GEO'
+  slot_1: { jobId: 'SAM', preferredMinimumRank: 2 },
+  slot_2: { jobId: 'WAR', preferredMinimumRank: 2 },
+  slot_3: { jobId: 'WHM', preferredMinimumRank: 2 },
+  slot_4: { jobId: 'COR', preferredMinimumRank: 2 },
+  slot_5: { jobId: 'BRD', preferredMinimumRank: 2 },
+  slot_6: { jobId: 'GEO', preferredMinimumRank: 2 },
 }
 
 // Assign the players to jobs and log the party setup to the console
-// const newParty: Party = new Party(players, config);
-// newParty.findValidPartySetupsWithDefaults([]);
-// newParty.findValidPartySetups();
+const newParty: Party = new Party(players, config);
+newParty.findValidPartySetups([[Oyama, 'WAR']]);

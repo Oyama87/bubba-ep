@@ -1,35 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState, Fragment } from 'react';
 import './App.css';
-import { Player } from './core/utils';
-import { players } from './core/shuffler';
+import { Player } from './typeDefinitions/utils';
+import { memberPool } from './core/data/index';
+import { CharacterTabComponent } from './UI-Components/CharacterTab.component';
 
 function App() {
+  const [partyMembers, setPartyMembers] = useState<Player[]>([]);
+
   return (
     <div className="App">
       <header className="App-header" style={{ padding: 20 }}>
-        <img src={logo} className="App-logo" alt="logo" />
-        {
-          players.map(
-            (player: Player) => (
-              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', flexWrap: 'wrap', justifyContent: 'space-evenly', alignItems: 'center' }}>
-                <p style={{ textDecoration: 'underline' }}>
-                  {player.name}
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'start' }}>
-                  {
-                    Object.keys(player.jobMap)
-                      .map((job: string) =>
-                        <span>
-                          {
-                            `${job}: ${player.jobMap[job]},`
-                          }
-                        </span>)
-                  }
+        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            flexWrap: 'wrap',
+            width: '25%'
+          }}>
+            {
+              memberPool.map((p: Player) => (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <CharacterTabComponent
+                    key={p.name}
+                    player={p}
+                    role="MNK"
+                    assigned={partyMembers.includes(p)}
+                    add={() => setPartyMembers([...partyMembers, p])}
+                    remove={() => setPartyMembers(partyMembers.filter((plr: Player) => plr.name !== p.name))}
+                  />
                 </div>
-              </div>
-            )
-          )}
+              ))
+            }
+          </div>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'start',
+            width: '15%'
+          }}>
+            {
+              partyMembers.map((p: Player) => (
+                <div>{p.name}</div>
+
+              ))
+            }
+          </div>
+        </div>
       </header>
     </div >
   );
