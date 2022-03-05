@@ -13,26 +13,27 @@ export const CharacterTabComponent = ({ player, role, assigned, add, remove }: C
       alignItems: 'center',
       margin: 10,
       backgroundColor: `${assigned ? 'red' : 'blue'}`,
-      // paddingTop: 15,
-      // paddingBottom: 15
-      padding: 25
+      height: 150,
+      width: 200,
+      padding: 25,
+      boxSizing: 'border-box'
     }}
       className='character-tab-container'>
       <div>Character: {player.name}</div>
       <div>Job: {role}</div>
       <div>Assigned: {`${assigned}`}</div>
-      <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
         <button style={{
           fontSize: 18,
           padding: 0,
-          marginTop: 10
+          marginTop: 15
         }} onClick={() => {
           add && add();
         }}>Add</button>
         <button style={{
           fontSize: 18,
           padding: 0,
-          marginTop: 10
+          marginTop: 15
         }} onClick={() => {
           remove && remove();
         }}>Remove</button>

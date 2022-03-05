@@ -16,7 +16,7 @@ function App() {
             flexDirection: 'row',
             justifyContent: 'space-around',
             flexWrap: 'wrap',
-            width: '25%'
+            width: '35%'
           }}>
             {
               memberPool.map((p: Player) => (
